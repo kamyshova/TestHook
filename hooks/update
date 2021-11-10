@@ -1,0 +1,22 @@
+#!/bin/sh
+
+refname="$1"
+oldrev="$2"
+newrev="$3"
+
+revisions=$(git rev-list $old_revision..$new_revision)
+IFS='\n' read -ra arr_revision <<< "$revisions"
+for i in "${!arr_revision[@]}"; do
+  revision=${arr_revision[i]}
+  message=$(git cat-file commit $revision | sed '1,/^$/d')
+  matched=$(grep -E "((I|i)ssue( |_)#)[1-9]+" "$message")
+  if [ -z "$matched" ] ; then
+    matched_undefined=$(grep -E "(I|i)ssue( |_)#undefined#" "$message")
+      if [ -n "$matched_undefined" ] ; then
+        echo "[warning] You are pushing the commit $revision without a issue number" >&1
+      else
+        echo "[error] Your commit message $message is not formatted correctly. The commit message must contain 'Issue #' or 'issue #'" >&2
+        exit 1
+      fi
+  fi
+done
