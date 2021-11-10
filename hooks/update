@@ -6,7 +6,7 @@ newrev="$3"
 
 revisions=$(git rev-list $old_revision..$new_revision)
 IFS='\n' read -ra arr_revision <<< "$revisions"
-cat "This is update hook"
+echo "This is update hook" >&1
 for i in "${!arr_revision[@]}"; do
   revision=${arr_revision[i]}
   message=$(git cat-file commit $revision | sed '1,/^$/d')
